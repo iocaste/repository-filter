@@ -1,0 +1,41 @@
+{
+    "name": "iocaste/filter",
+    "description": "Extended L5-Repository logic for Laravel/Lumen Eloquent database layer.",
+    "authors": [
+        {
+            "name": "Nikita.N",
+            "email": "iocaste.systems@gmail.com"
+        }
+    ],
+    "keywords": [
+        "laravel",
+        "repository",
+        "eloquent",
+        "model"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.1"
+    },
+    "require-dev": {
+        "prettus/l5-repository": "~2.6",
+        "fzaninotto/faker": "~1.4",
+        "phpunit/phpunit": "~6.0",
+        "mockery/mockery": "~0.9",
+        "franzl/studio": "^0.12.0",
+        "laravel/lumen-framework": "~5.5",
+        "illuminate/support": "~5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Iocaste\\Filter\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
