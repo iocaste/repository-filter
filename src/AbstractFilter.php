@@ -2,6 +2,8 @@
 
 namespace Iocaste\Filter;
 
+use Prettus\Repository\Eloquent\BaseRepository;
+
 /**
  * Class AbstractFilter
  */
@@ -17,7 +19,7 @@ abstract class AbstractFilter implements FilterContract
     protected const ITEMS_PER_PAGE = 20;
 
     /**
-     * @var RepositoryInterface
+     * @var BaseRepository
      */
     protected $repository;
 
@@ -42,11 +44,11 @@ abstract class AbstractFilter implements FilterContract
     ];
 
     /**
-     * @param RepositoryInterface $repository
+     * @param BaseRepository $repository
      *
      * @return $this
      */
-    public function setRepository(RepositoryInterface $repository)
+    public function setRepository(BaseRepository $repository)
     {
         $this->repository = $repository;
 
@@ -87,12 +89,13 @@ abstract class AbstractFilter implements FilterContract
     }
 
     /**
-     * @param RepositoryInterface $repository
+     * @param BaseRepository $repository
      * @param array $input
      *
-     * @return RepositoryInterface
+     * @return BaseRepository
+     * @throws \Prettus\Repository\Exceptions\RepositoryException
      */
-    public function pushFilters(RepositoryInterface $repository, array $input = []): RepositoryInterface
+    public function pushFilters(BaseRepository $repository, array $input = []): BaseRepository
     {
         foreach ($this->queryFilters as $filter) {
             if (isset($input[$filter['queryParameter']])) {
@@ -112,6 +115,7 @@ abstract class AbstractFilter implements FilterContract
      * @param null $limit
      *
      * @return $this
+     * @throws \Prettus\Repository\Exceptions\RepositoryException
      */
     public function limit($limit = null)
     {
