@@ -31,7 +31,12 @@ abstract class AbstractFilter implements FilterContract
     /**
      * @var array
      */
-    protected $defaultQueryFilters = [];
+    protected $defaultQueryFilters = [
+        [
+            'queryParameter' => 'uuids',
+            'criteria' => \Iocaste\Filter\ByListOfUuids::class,
+        ],
+    ];
 
     /**
      * @var array
@@ -101,8 +106,7 @@ abstract class AbstractFilter implements FilterContract
             if (isset($input[$filter['queryParameter']])) {
                 $repository = $repository->pushCriteria(
                     new $filter['criteria'](
-                        $input[$filter['queryParameter']],
-                        $input
+                        $input[$filter['queryParameter']]
                     )
                 );
             }

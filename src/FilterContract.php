@@ -2,19 +2,17 @@
 
 namespace Iocaste\Filter;
 
-use Illuminate\Http\Request;
-
 /**
  * Interface FilterContract
  */
 interface FilterContract
 {
     /**
-     * @param Request $request
+     * @param array $requestAttributes
      *
      * @return mixed
      */
-    public function filter(Request $request);
+    public function filter(array $requestAttributes);
 
     /**
      * @return mixed
