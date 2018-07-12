@@ -149,4 +149,26 @@ abstract class AbstractFilter implements FilterContract
 
         return $this->repository->paginate($itemsPerPage);
     }
+
+    /**
+     * @param array|string $relations
+     * @return $this
+     */
+    public function setWith($relations): self
+    {
+        $this->repository->with($relations);
+
+        return $this;
+    }
+
+    /**
+     * @param array|string $relations
+     * @return $this
+     */
+    public function setWithCount($relations): self
+    {
+        $this->repository->withCount($relations);
+
+        return $this;
+    }
 }
