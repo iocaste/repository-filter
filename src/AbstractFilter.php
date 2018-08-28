@@ -89,7 +89,9 @@ abstract class AbstractFilter implements FilterContract
 
         return array_merge(
             $this->defaultQuerySettings,
-            array_filter($input)
+            array_filter($input, function ($value) {
+                return $value !== null;
+            })
         );
     }
 
