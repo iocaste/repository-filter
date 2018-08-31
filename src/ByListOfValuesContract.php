@@ -11,6 +11,7 @@ abstract class ByListOfValuesContract implements CriteriaInterface
      * @var string
      */
     protected $value;
+
     /**
      * Comma separated value or value
      * ByCommaValueContract constructor.
@@ -44,7 +45,7 @@ abstract class ByListOfValuesContract implements CriteriaInterface
     public function apply($model, RepositoryInterface $repository)
     {
         return $model->whereIn(
-            $this->getField(),
+            $repository->getTableName($model) . '.' . $this->getField(),
             $this->getValues()
         );
     }
