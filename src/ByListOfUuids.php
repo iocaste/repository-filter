@@ -33,8 +33,8 @@ class ByListOfUuids implements CriteriaInterface
      */
     public function apply($model, RepositoryInterface $repository)
     {
-        if (\count($this->uuids)) {
-            $model = $model->whereIn('uuid', $this->uuids);
+        if (count($this->uuids)) {
+            $model = $model->whereIn($repository->getTableName($model) . '.uuid', $this->uuids);
         }
 
         return $model;
