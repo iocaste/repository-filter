@@ -2,6 +2,7 @@
 
 namespace Iocaste\Filter;
 
+use Iocaste\Microservice\Foundation\Repository\MysqlRepository;
 use Prettus\Repository\Contracts\CriteriaInterface;
 use Prettus\Repository\Contracts\RepositoryInterface;
 
@@ -44,9 +45,10 @@ abstract class ByListOfValuesContract implements CriteriaInterface
      */
     public function apply($model, RepositoryInterface $repository)
     {
-        return $model->whereIn(
-            $repository->getTableName($model) . '.' . $this->getField(),
-            $this->getValues()
-        );
+        $column = $repository instanceof MysqlRepository
+            ? $repository->getTableName($model) . '.' . $this->getField()
+            : $this->getField();
+
+        return $model->whereIn($column, $this->getValues());
     }
 }

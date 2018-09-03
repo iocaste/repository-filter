@@ -2,6 +2,7 @@
 
 namespace Iocaste\Filter;
 
+use Iocaste\Microservice\Foundation\Repository\MysqlRepository;
 use Prettus\Repository\Contracts\RepositoryInterface;
 use Prettus\Repository\Contracts\CriteriaInterface;
 
@@ -33,8 +34,12 @@ class ByListOfUuids implements CriteriaInterface
      */
     public function apply($model, RepositoryInterface $repository)
     {
+        $column = $repository instanceof MysqlRepository
+            ? $repository->getTableName($model) . '.uuid'
+            : $this->getField();
+
         if (count($this->uuids)) {
-            $model = $model->whereIn($repository->getTableName($model) . '.uuid', $this->uuids);
+            $model = $model->whereIn($column, $this->uuids);
         }
 
         return $model;
