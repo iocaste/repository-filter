@@ -36,7 +36,7 @@ class ByListOfUuids implements CriteriaInterface
     {
         $column = $repository instanceof SqlRepository
             ? $repository->getTableName($model) . '.uuid'
-            : $this->getField();
+            : 'uuid';
 
         if (count($this->uuids)) {
             $model = $model->whereIn($column, $this->uuids);
