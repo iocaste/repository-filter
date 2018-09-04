@@ -36,6 +36,10 @@ abstract class AbstractFilter implements FilterContract
             'queryParameter' => 'uuids',
             'criteria' => \Iocaste\Filter\ByListOfUuids::class,
         ],
+        [
+            'queryParameter' => 'order_by',
+            'criteria' => \Iocaste\Filter\OrderBy::class,
+        ],
     ];
 
     /**
