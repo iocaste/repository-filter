@@ -27,7 +27,7 @@ class OrderBy implements CriteriaInterface
     /**
      * @var string
      */
-    protected $orderByPattern = '/^[a-z\.\_]+$/i';
+    protected $orderByPattern = '/^[a-z0-9\.\_]+$/i';
 
     /**
      * @var array
@@ -165,7 +165,7 @@ class OrderBy implements CriteriaInterface
                 : $relationshipNameSegment;
 
             if ($relationship instanceof Relations\HasOneOrMany) {
-                $joinTableColumn = $relationship->getPlainForeignKey();
+                $joinTableColumn = $relationship->getForeignKeyName();
                 $mainTableColumn = 'id';
             } else {
                 $joinTableColumn = $relationship->getOwnerKey();
