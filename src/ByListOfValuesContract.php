@@ -45,9 +45,7 @@ abstract class ByListOfValuesContract implements CriteriaInterface
      */
     public function apply($model, RepositoryInterface $repository)
     {
-        $column = $repository instanceof SqlRepository
-            ? $repository->getTableName($model) . '.' . $this->getField()
-            : $this->getField();
+        $column = $repository->getColumnName($this->getField(), $model);
 
         return $model->whereIn($column, $this->getValues());
     }
