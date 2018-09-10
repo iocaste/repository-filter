@@ -172,11 +172,11 @@ class OrderBy implements CriteriaInterface
                 $mainTableColumn = $relationship->getForeignKey();
             }
 
-            $joined_tables = array_map(function($join) {
+            $joinedTables = array_map(function($join) {
                 return $join->table;
             }, $query->getQuery()->joins ?: []);
 
-            if (array_search($relationship->getRelated()->getTable() . ' as ' . $alias, $joined_tables) === false) {
+            if (array_search($relationship->getRelated()->getTable() . ' as ' . $alias, $joinedTables) === false) {
                 $query = $query->leftJoin(
                     $relationship->getRelated()->getTable() . ' as ' . $alias,
                     $alias . '.' . $joinTableColumn,
