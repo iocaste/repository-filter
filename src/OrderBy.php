@@ -69,7 +69,7 @@ class OrderBy implements CriteriaInterface
             [$relation, $column, $jsonProperty] = $this->getOrderSegments($this->orderBy);
 
             if ($relation) {
-                $this->joinRelationship($model, $relation);
+                $model = $this->joinRelationship($model, $relation);
             }
 
             $columnWithTableAlias = $relation
@@ -77,15 +77,15 @@ class OrderBy implements CriteriaInterface
                 : $column;
 
             if ($jsonProperty) {
-                $model->orderBy(
+                $model = $model->orderBy(
                     app('db')->raw('JSON_EXTRACT('
                         . $columnWithTableAlias . ', '
                         . "'$." . $jsonProperty . "'"
-                    . ')'),
+                        . ')'),
                     $this->sortBy
                 );
             } else {
-                $model->orderBy($columnWithTableAlias, $this->sortBy);
+                $model = $model->orderBy($columnWithTableAlias, $this->sortBy);
             }
         }
 
@@ -139,7 +139,7 @@ class OrderBy implements CriteriaInterface
      *
      * @throws TryingToJoinUnavailableMethod
      */
-    protected function joinRelationship($query, $relationshipName): void
+    protected function joinRelationship($query, $relationshipName)
     {
         $usedSegments = [];
         $model = $query->getModel();
@@ -172,15 +172,23 @@ class OrderBy implements CriteriaInterface
                 $mainTableColumn = $relationship->getForeignKey();
             }
 
-            $query->leftJoin(
-                $relationship->getRelated()->getTable() . ' as ' . $alias,
-                $alias . '.' . $joinTableColumn,
-                '=',
-                $currentAlias . '.' . $mainTableColumn
-            );
+            $joinedTables = array_map(function($join) {
+                return $join->table;
+            }, $query->getQuery()->joins ?: []);
+
+            if (array_search($relationship->getRelated()->getTable() . ' as ' . $alias, $joinedTables) === false) {
+                $query = $query->leftJoin(
+                    $relationship->getRelated()->getTable() . ' as ' . $alias,
+                    $alias . '.' . $joinTableColumn,
+                    '=',
+                    $currentAlias . '.' . $mainTableColumn
+                );
+            }
 
             $model = $relationship->getRelated();
             $usedSegments[] = $relationshipNameSegment;
         }
+
+        return $query;
     }
 }
