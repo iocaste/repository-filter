@@ -41,6 +41,7 @@ class OrderBy implements CriteriaInterface
      * OrderBy constructor.
      *
      * @param $count
+     * @param mixed $orderBy
      */
     public function __construct($orderBy)
     {
@@ -172,7 +173,7 @@ class OrderBy implements CriteriaInterface
                 $mainTableColumn = $relationship->getForeignKey();
             }
 
-            $joinedTables = array_map(function($join) {
+            $joinedTables = array_map(function ($join) {
                 return $join->table;
             }, $query->getQuery()->joins ?: []);
 
