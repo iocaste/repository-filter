@@ -2,7 +2,6 @@
 
 namespace Iocaste\Filter;
 
-use Iocaste\Microservice\Foundation\Repository\SqlRepository;
 use Prettus\Repository\Contracts\RepositoryInterface;
 use Prettus\Repository\Contracts\CriteriaInterface;
 

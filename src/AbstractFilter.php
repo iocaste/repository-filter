@@ -40,6 +40,10 @@ abstract class AbstractFilter implements FilterContract
             'queryParameter' => 'order_by',
             'criteria' => \Iocaste\Filter\OrderBy::class,
         ],
+        [
+            'queryParameter' => 'filter',
+            'criteria' => \Iocaste\Filter\FilterBy::class,
+        ],
     ];
 
     /**
@@ -103,8 +107,8 @@ abstract class AbstractFilter implements FilterContract
      * @param BaseRepository $repository
      * @param array $input
      *
-     * @return BaseRepository
      * @throws \Prettus\Repository\Exceptions\RepositoryException
+     * @return BaseRepository
      */
     public function pushFilters(BaseRepository $repository, array $input = []): BaseRepository
     {
@@ -124,8 +128,8 @@ abstract class AbstractFilter implements FilterContract
     /**
      * @param null $limit
      *
-     * @return $this
      * @throws \Prettus\Repository\Exceptions\RepositoryException
+     * @return $this
      */
     public function limit($limit = null)
     {
