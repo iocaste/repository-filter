@@ -4,7 +4,6 @@ namespace Iocaste\Filter;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Iocaste\Filter\Exception\FilterBy\TryingToFilterByNonexistentRelation;
 use Prettus\Repository\Contracts\CriteriaInterface;
 use Prettus\Repository\Contracts\RepositoryInterface;
@@ -12,6 +11,7 @@ use Prettus\Repository\Contracts\RepositoryInterface;
 class FilterBy implements CriteriaInterface
 {
     use InteractsWithModel;
+    use GetsParameterSegments;
 
     /**
      * @var array
@@ -71,22 +71,22 @@ class FilterBy implements CriteriaInterface
      */
     protected function addFilter(Builder $model, string $column, string $filter): Builder
     {
+        [$relation, $column, $jsonProperty] = $this->getParameterSegments($column);
         $type = $this->getFilterType($filter);
         $searchValue = $this->getSearchValue($filter);
-        $relation = $this->getRelation($column);
 
         if ($relation && ! $this->modelHasRelation($model->getModel(), $relation)) {
-            throw new TryingToFilterByNonexistentRelation($relation . ' relation does not exist on model ' . get_class($model->getModel()));
+            throw new TryingToFilterByNonexistentRelation($relation . ' relation does not exist on model ' . \get_class($model->getModel()));
         }
 
         $column = $this->getColumn($column);
 
         if ($relation) {
-            $model = $model->whereHas($relation, function ($query) use ($column, $type, $searchValue) {
-                $this->addFilterByType($query, $column, $type, $searchValue);
+            $model = $model->whereHas($relation, function ($query) use ($column, $type, $searchValue, $jsonProperty) {
+                $this->addFilterByType($query, $column, $type, $searchValue, $jsonProperty);
             });
         } else {
-            $model = $this->addFilterByType($model, $column, $type, $searchValue);
+            $model = $this->addFilterByType($model, $column, $type, $searchValue, $jsonProperty);
         }
 
         return $model;
@@ -103,19 +103,6 @@ class FilterBy implements CriteriaInterface
         }
 
         return substr($column, strrpos($column, '.') + 1);
-    }
-
-    /**
-     * @param $column
-     * @return string|null
-     */
-    protected function getRelation($column): ?string
-    {
-        if (! $this->hasRelations($column)) {
-            return null;
-        }
-
-        return Str::camel(substr($column, 0, strrpos($column, '.')));
     }
 
     /**
@@ -149,13 +136,18 @@ class FilterBy implements CriteriaInterface
      * @param string $column
      * @param string $type
      * @param string $value
+     * @param null|string $jsonProperty
      * @return Builder
      */
-    protected function addFilterByType(Builder $model, string $column, string $type, string $value): Builder
+    protected function addFilterByType(Builder $model, string $column, string $type, string $value, ?string $jsonProperty): Builder
     {
+        if ($jsonProperty) {
+            $column = app('db')->raw('LOWER(' . $column . "->'$." . $jsonProperty . "')");
+        }
+
         switch ($type) {
             case 'string':
-                $model = $model->where($column, 'LIKE', '%' . $value . '%');
+                $model = $model->where($column, 'LIKE', '%' . mb_strtolower($value) . '%');
                 break;
             case 'boolean':
                 $model = $model->where($column, $this->prepareValue($value, $type));
