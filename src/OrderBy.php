@@ -14,6 +14,8 @@ use ReflectionMethod;
  */
 class OrderBy implements CriteriaInterface
 {
+    use GetsParameterSegments;
+
     /**
      * @var string
      */
@@ -49,7 +51,7 @@ class OrderBy implements CriteriaInterface
 
         $this->orderBy = $explode[0];
         $this->sortBy = $explode[1] ?? 'asc';
-        if (! in_array($this->sortBy, ['asc', 'desc'])) {
+        if (! \in_array($this->sortBy, ['asc', 'desc'])) {
             $this->sortBy = 'asc';
         }
     }
@@ -57,6 +59,10 @@ class OrderBy implements CriteriaInterface
     /**
      * @param \Illuminate\Database\Eloquent\Builder $model
      * @param RepositoryInterface $repository
+     *
+     * @throws OrderByParameterContainsIllegalSymbols
+     * @throws TryingToJoinUnavailableMethod
+     * @throws \ReflectionException
      *
      * @return mixed
      */
@@ -67,7 +73,7 @@ class OrderBy implements CriteriaInterface
                 throw new OrderByParameterContainsIllegalSymbols();
             }
 
-            [$relation, $column, $jsonProperty] = $this->getOrderSegments($this->orderBy);
+            [$relation, $column, $jsonProperty] = $this->getParameterSegments($this->orderBy);
 
             if ($relation) {
                 $model = $this->joinRelationship($model, $relation);
@@ -94,51 +100,13 @@ class OrderBy implements CriteriaInterface
     }
 
     /**
-     * @param $orderBy
-     *
-     * @return array
-     */
-    protected function getOrderSegments($orderBy): array
-    {
-        $orderBy = str_replace(
-            'translation_current',
-            'translation.' . app('translator')->getLocale(),
-            $orderBy
-        );
-
-        if (strpos($orderBy, 'translation') !== false) {
-            $result = explode('translation', $orderBy);
-            $result = array_map(function ($value) {
-                return trim($value, '.');
-            }, $result);
-
-            return [
-                $result[0] ? camel_case($result[0]) : null,
-                'translation',
-                $result[1],
-            ];
-        } elseif (strpos($orderBy, '.') !== false) {
-            $lastDotPosition = strrpos($orderBy, '.');
-
-            return [
-                camel_case(substr($orderBy, 0, $lastDotPosition)),
-                substr($orderBy, $lastDotPosition + 1),
-                null,
-            ];
-        }
-
-        return [
-            null,
-            $orderBy,
-            null,
-        ];
-    }
-
-    /**
      * @param $query
      * @param $relationshipName
      *
      * @throws TryingToJoinUnavailableMethod
+     * @throws \ReflectionException
+     *
+     * @return
      */
     protected function joinRelationship($query, $relationshipName)
     {
