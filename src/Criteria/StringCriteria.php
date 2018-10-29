@@ -2,6 +2,7 @@
 
 namespace Iocaste\Filter\Criteria;
 
+use DB;
 use Illuminate\Database\Eloquent\Builder;
 
 class StringCriteria extends AbstractCriteria
@@ -27,7 +28,7 @@ class StringCriteria extends AbstractCriteria
      */
     public function setValue($value): CriteriaInterface
     {
-        $this->value = filter_var($value, FILTER_SANITIZE_STRING);
+        $this->value = filter_var(filter_var($value, FILTER_SANITIZE_STRING), FILTER_SANITIZE_MAGIC_QUOTES);
 
         return $this;
     }
