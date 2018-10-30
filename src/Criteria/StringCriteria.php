@@ -16,7 +16,7 @@ class StringCriteria extends AbstractCriteria
         if ($this->getJsonProperty()) {
             return $this->applyWithJsonProperty($model);
         }
-        
+
         return $model->where($this->getColumn(), 'LIKE', '%' . mb_strtolower($this->getValue()) . '%');
     }
 
@@ -27,7 +27,7 @@ class StringCriteria extends AbstractCriteria
      */
     public function setValue($value): CriteriaInterface
     {
-        $this->value = filter_var($value, FILTER_SANITIZE_STRING);
+        $this->value = filter_var(filter_var($value, FILTER_SANITIZE_STRING), FILTER_SANITIZE_MAGIC_QUOTES);
 
         return $this;
     }
