@@ -3,10 +3,10 @@
 namespace Iocaste\Filter;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 use Iocaste\Filter\Exception\FilterBy\TryingToFilterByNonexistentRelation;
 use Prettus\Repository\Contracts\CriteriaInterface;
 use Prettus\Repository\Contracts\RepositoryInterface;
+use Iocaste\Filter\Criteria\CriteriaInterface as FilterCriteriaInterface;
 
 class FilterBy implements CriteriaInterface
 {
@@ -137,61 +137,23 @@ class FilterBy implements CriteriaInterface
      * @param string $type
      * @param string $value
      * @param null|string $jsonProperty
+     *
      * @return Builder
      */
-    protected function addFilterByType(Builder $model, string $column, string $type, string $value, ?string $jsonProperty): Builder
+    protected function addFilterByType(
+        Builder $model,
+        string $column,
+        string $type,
+        string $value,
+        ?string $jsonProperty
+    ): Builder
     {
-        if ($jsonProperty) {
-            $column = app('db')->raw('LOWER(' . $column . "->'$." . $jsonProperty . "')");
-        }
+        $criteria = $this->createCriteria($type);
+        $criteria->setColumn($column)
+            ->setValue($value)
+            ->setJsonProperty($jsonProperty);
 
-        switch ($type) {
-            case 'string':
-                $model = $model->where($column, 'LIKE', '%' . mb_strtolower($value) . '%');
-                break;
-            case 'boolean':
-                $model = $model->where($column, $this->prepareValue($value, $type));
-                break;
-            case 'integer':
-                $model = $model->where($column, $this->prepareValue($value, $type));
-                break;
-            case 'date':
-                $model = $model->whereDate($column, $this->prepareValue($value, $type));
-                break;
-            case 'datetime':
-                $model = $model->where($column, $this->prepareValue($value, $type));
-                break;
-        }
-
-        return $model;
-    }
-
-    /**
-     * @param $value
-     * @param string $type
-     * @return mixed
-     */
-    protected function prepareValue($value, string $type)
-    {
-        switch ($type) {
-            case 'string':
-                $value = filter_var($value, FILTER_SANITIZE_STRING);
-                break;
-            case 'boolean':
-                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                break;
-            case 'integer':
-                $value = (int) $value;
-                break;
-            case 'date':
-                $value = Carbon::parse($value)->toDateString();
-                break;
-            case 'datetime':
-                $value = Carbon::parse($value)->toDateTimeString();
-                break;
-        }
-
-        return $value;
+        return $criteria->apply($model);
     }
 
     /**
@@ -201,5 +163,22 @@ class FilterBy implements CriteriaInterface
     protected function hasRelations($column): bool
     {
         return strpos($column, '.') !== false;
+    }
+
+    /**
+     * @param string $type
+     * @return string
+     */
+    protected function createCriteria(string $type): FilterCriteriaInterface
+    {
+        $namespace = 'Iocaste\Filter\Criteria\\';
+        $className = $namespace . ucfirst($type) . 'Criteria';
+
+        if (class_exists($className)) {
+            return new $className();
+        }
+        $defaultCriteria = $namespace . 'DefaultCriteria';
+
+        return new $defaultCriteria();
     }
 }
