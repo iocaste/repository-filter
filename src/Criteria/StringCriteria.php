@@ -2,7 +2,6 @@
 
 namespace Iocaste\Filter\Criteria;
 
-use DB;
 use Illuminate\Database\Eloquent\Builder;
 
 class StringCriteria extends AbstractCriteria
@@ -17,7 +16,7 @@ class StringCriteria extends AbstractCriteria
         if ($this->getJsonProperty()) {
             return $this->applyWithJsonProperty($model);
         }
-        
+
         return $model->where($this->getColumn(), 'LIKE', '%' . mb_strtolower($this->getValue()) . '%');
     }
 
