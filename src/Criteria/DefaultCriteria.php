@@ -2,6 +2,6 @@
 
 namespace Iocaste\Filter\Criteria;
 
-class DefaultCriteria extends StringCriteria
+class DefaultCriteria extends LikeCriteria
 {
 }

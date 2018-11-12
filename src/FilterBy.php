@@ -22,6 +22,7 @@ class FilterBy implements CriteriaInterface
      * @var array
      */
     protected $availableTypes = [
+        'like',
         'string',
         'boolean',
         'integer',
@@ -32,7 +33,7 @@ class FilterBy implements CriteriaInterface
     /**
      * @var string
      */
-    protected $defaultType = 'string';
+    protected $defaultType = 'like';
 
     /**
      * FilterBy constructor.
