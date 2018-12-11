@@ -2,11 +2,13 @@
 
 namespace Iocaste\Filter;
 
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Relations;
 use Iocaste\Filter\Exception\OrderBy\OrderByParameterContainsIllegalSymbols;
 use Iocaste\Filter\Exception\OrderBy\TryingToJoinUnavailableMethod;
 use Prettus\Repository\Contracts\RepositoryInterface;
 use Prettus\Repository\Contracts\CriteriaInterface;
+use Jenssegers\Mongodb\Connection as MongodbConnection;
 use ReflectionMethod;
 
 /**
@@ -79,9 +81,7 @@ class OrderBy implements CriteriaInterface
                 $model = $this->joinRelationship($model, $relation);
             }
 
-            $columnWithTableAlias = $relation
-                ? str_replace('.', '_', $relation) . '.' . $column
-                : $model->getModel()->getTable() . '.' . $column;
+            $columnWithTableAlias = $this->getColumnWithTableAlias($model, $relation, $column);
 
             if ($jsonProperty) {
                 $model = $model->orderBy(
@@ -97,6 +97,26 @@ class OrderBy implements CriteriaInterface
         }
 
         return $model;
+    }
+    
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder $model
+     * @param string $relation
+     * @param string $column
+     *
+     * @return string
+     */
+    protected function getColumnWithTableAlias($model, $relation, $column)
+    {
+        if ($relation) {
+            return str_replace('.', '_', $relation) . '.' . $column;
+        } elseif (class_exists(MongodbConnection::class)
+            && app(DatabaseManager::class)->connection() instanceof MongodbConnection
+        ) {
+            return $column;
+        }
+
+        return $model->getModel()->getTable() . '.' . $column;
     }
 
     /**
