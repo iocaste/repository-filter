@@ -81,7 +81,7 @@ class OrderBy implements CriteriaInterface
 
             $columnWithTableAlias = $relation
                 ? str_replace('.', '_', $relation) . '.' . $column
-                : $column;
+                : $model->getModel()->getTable() . '.' . $column;
 
             if ($jsonProperty) {
                 $model = $model->orderBy(
